@@ -1,30 +1,50 @@
-from torch import nn
-from torch.nn.modules.padding import ZeroPad2d
+import time
+import torch
+
 from torchvision.transforms import *
 from torchvision.datasets import MNIST
 from torchvision.models import DenseNet
-
-import torchvision
 
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 
 import torch.optim as optim
 import torch.nn.functional as f
-import torch
 
 
-def train():
+def test_trainAndtest():
+    ts = time.time()
+    for epoch in range(3):
+        start = time.time()
+        train(epoch)
+        test()
+        end = time.time()
+        print('Run time for epoch %d: %f ms' % (epoch, (end - start) * 1000))
+    tf = time.time()
+    print('Total run time : %f ms' % ((tf - ts) * 1000))
+
+
+def train(epoch):
     net.train()
     for batch_idx, (data, target) in enumerate(train_loader):
+        # to cuda if available
+        if torch.cuda.is_available():
+            data = data.cuda()
+            target = target.cuda()
+
         optimizer.zero_grad()
-        out = net(m(data))
+        data = data.resize_(64, 3, 224, 224)
+        out = net(data)
+        if torch.cuda.is_available():
+            out = out.cuda()
         loss = f.cross_entropy(out, target)
         loss.backward()
         optimizer.step()
+
         if batch_idx % 100 == 0:
             print(f"train epoch: {epoch} [{(batch_idx + 1) * len(data)}/{len(train_loader.dataset)}"
                   f" ({100 * (batch_idx + 1) / len(train_loader):.0f}%)] loss: {loss.item():.6f}")
+            break
 
 
 def test():
@@ -33,37 +53,54 @@ def test():
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
-            out = net(m(data))
+            # to cuda if available
+            if torch.cuda.is_available():
+                data = data.cuda()
+                target = target.cuda()
+            data = data.resize_(64, 3, 224, 224)
+            out = net(data)
+            if torch.cuda.is_available():
+                out = out.cuda()
+
             test_loss += f.cross_entropy(out, target).item()
+
             pred = out.data.max(1, keepdim=True)[1]
+
             correct += pred.eq(target.data.view_as(pred)).sum()
-        print(len(test_loader.dataset))
+
         test_loss /= len(test_loader.dataset)
         print(f"\ntrain: loss: {test_loss:.6f}, "
               f"acc: {correct}/{len(test_loader.dataset)} ({100 * correct / len(test_loader.dataset)}%)\n")
 
 
-def testForward():
+def test_BuildAndForward():
+    for layer in net.named_modules():
+        print(layer)
+
     net.train()
-    input = torch.ones(10, 3, 32, 32)
+    input = torch.ones(10, 3, 224, 224)
     out = net(input)
+    print(out.shape)
     print(out)
 
 
 if __name__ == '__main__':
-    m = nn.ZeroPad2d((64, 3, 32, 32))
-    # net = DenseNet(num_classes=10)
-    net = torchvision.models.densenet121()
-    # for s in net.named_modules():
-    #     print(s)
-    # testForward()
-    trans = Compose([ToTensor(), Lambda(lambda t: torch.cat([t, t, t], 0))])  # think concat dim to be 1, confused...
-    mnist_train = MNIST("MNIST", train=True, transform=trans, download=False)
-    mnist_test = MNIST("MNIST", train=False, transform=trans, download=False)
+    # init
+    net = DenseNet(num_classes=10)
+    if torch.cuda.is_available():
+        print("cuda available")
+        device = torch.device("cuda:0")
+        net.to(device)
+        torch.cuda.empty_cache()
+    # "grow" method in java
+    transform = Compose(
+        [ToTensor(), Lambda(lambda t: torch.cat([t, t, t], 0))])  # think concat dim to be 1, confused...
+    mnist_train = MNIST("MNIST", train=True, transform=transform, download=False)
+    mnist_test = MNIST("MNIST", train=False, transform=transform, download=False)
     train_loader = DataLoader(mnist_train, batch_size=64, sampler=SequentialSampler(mnist_train))
     test_loader = DataLoader(mnist_test, batch_size=64, sampler=SequentialSampler(mnist_test))
     optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.5)
 
-    for epoch in range(3):
-        train()
-        test()
+    # init finish
+    test_BuildAndForward()
+    # test_trainAndtest()

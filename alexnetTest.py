@@ -3,7 +3,7 @@ import torch
 
 from torchvision.transforms import *
 from torchvision.datasets import MNIST
-from torchvision.models import MobileNetV2
+from torchvision.models import AlexNet
 
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
@@ -24,14 +24,6 @@ def test_trainAndtest():
     print('Total run time : %f ms' % ((tf - ts) * 1000))
 
 
-def zeroPadResize(input, newSize):
-    m = torch.nn.ZeroPad2d(newSize)
-    if torch.cuda.is_available():
-        return m(input).cuda()
-    else:
-        return m(input)
-
-
 def train(epoch):
     net.train()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -41,6 +33,7 @@ def train(epoch):
             target = target.cuda()
 
         optimizer.zero_grad()
+        data = data.resize_(64, 3, 224, 224)
         out = net(data)
         if torch.cuda.is_available():
             out = out.cuda()
@@ -64,7 +57,7 @@ def test():
             if torch.cuda.is_available():
                 data = data.cuda()
                 target = target.cuda()
-
+            data = data.resize_(64, 3, 224, 224)
             out = net(data)
             if torch.cuda.is_available():
                 out = out.cuda()
@@ -85,7 +78,7 @@ def test_BuildAndForward():
         print(layer)
 
     net.train()
-    input = torch.ones(10, 3, 28, 28)
+    input = torch.ones(10, 3, 224, 224)
     out = net(input)
     print(out.shape)
     print(out)
@@ -93,7 +86,7 @@ def test_BuildAndForward():
 
 if __name__ == '__main__':
     # init
-    net = MobileNetV2(num_classes=10)
+    net = AlexNet(num_classes=10)
     if torch.cuda.is_available():
         print("cuda available")
         device = torch.device("cuda:0")
@@ -109,5 +102,5 @@ if __name__ == '__main__':
     optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.5)
 
     # init finish
-    test_BuildAndForward()
-    # test_trainAndtest()
+    # test_BuildAndForward()
+    test_trainAndtest()
