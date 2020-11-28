@@ -3,7 +3,7 @@ import torch
 
 from torchvision.transforms import *
 from torchvision.datasets import MNIST
-from torchvision.models import AlexNet
+from torchvision.models import alexnet
 
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
@@ -86,7 +86,7 @@ def test_BuildAndForward():
 
 if __name__ == '__main__':
     # init
-    net = AlexNet(num_classes=10)
+    net = alexnet(num_classes=10)
     if torch.cuda.is_available():
         print("cuda available")
         device = torch.device("cuda:0")

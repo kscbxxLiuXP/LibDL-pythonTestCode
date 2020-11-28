@@ -3,7 +3,7 @@ import torch
 
 from torchvision.transforms import *
 from torchvision.datasets import MNIST
-from torchvision.models import mobilenet_v2
+from torchvision.models import googlenet
 
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
@@ -33,7 +33,7 @@ def train(epoch):
             target = target.cuda()
 
         optimizer.zero_grad()
-        out = net(data)
+        out = net(data)[0]
         if torch.cuda.is_available():
             out = out.cuda()
         loss = f.cross_entropy(out, target)
@@ -57,7 +57,7 @@ def test():
                 data = data.cuda()
                 target = target.cuda()
 
-            out = net(data)
+            out = net(data)[0]
             if torch.cuda.is_available():
                 out = out.cuda()
 
@@ -78,14 +78,14 @@ def test_BuildAndForward():
 
     net.train()
     input = torch.ones(10, 3, 28, 28)
-    out = net(input)
+    out = net(input)[0]
     print(out.shape)
     print(out)
 
 
 if __name__ == '__main__':
     # init
-    net = mobilenet_v2(num_classes=10)
+    net = googlenet(num_classes=10)
     if torch.cuda.is_available():
         print("cuda available")
         device = torch.device("cuda:0")
