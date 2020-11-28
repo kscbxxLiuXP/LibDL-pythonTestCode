@@ -57,7 +57,7 @@ def test():
                 data = data.cuda()
                 target = target.cuda()
 
-            out = net(data)[0]
+            out = net(data)
             if torch.cuda.is_available():
                 out = out.cuda()
 
@@ -103,5 +103,5 @@ if __name__ == '__main__':
     optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.5)
 
     # init finish
-    test_BuildAndForward()
-    # test_trainAndtest()
+    #test_BuildAndForward()
+    test_trainAndtest()

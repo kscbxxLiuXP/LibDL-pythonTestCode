@@ -14,7 +14,7 @@ import torch.nn.functional as f
 
 def test_trainAndtest():
     ts = time.time()
-    for epoch in range(3):
+    for epoch in range(1):
         start = time.time()
         train(epoch)
         test()
@@ -102,5 +102,5 @@ if __name__ == '__main__':
     optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.5)
 
     # init finish
-    test_BuildAndForward()
-    # test_trainAndtest()
+    #test_BuildAndForward()
+    test_trainAndtest()

@@ -33,7 +33,7 @@ def train(epoch):
             target = target.cuda()
 
         optimizer.zero_grad()
-        data = data.resize_(64, 3, 299, 299)
+        data = data.resize_(data.shape[0], 3, 299, 299)
         out = net(data)[0]
         if torch.cuda.is_available():
             out = out.cuda()
@@ -57,8 +57,8 @@ def test():
             if torch.cuda.is_available():
                 data = data.cuda()
                 target = target.cuda()
-            data = data.resize_(64, 3, 299, 299)
-            out = net(data)[0]
+            data = data.resize_(data.shape[0], 3, 299, 299)
+            out = net(data)
             if torch.cuda.is_available():
                 out = out.cuda()
 
@@ -102,5 +102,5 @@ if __name__ == '__main__':
     optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.5)
 
     # init finish
-    test_BuildAndForward()
-    # test_trainAndtest()
+    #test_BuildAndForward()
+    test_trainAndtest()

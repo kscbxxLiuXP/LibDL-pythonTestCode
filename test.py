@@ -43,5 +43,9 @@ def zeroPadResize(input, newSize):
 
 
 if __name__ == "__main__":
+    torch.cuda.empty_cache()
+
+    a=torch.cuda.memory_cached()
+    print(a)
     input = torch.randn((10, 3, 28, 28))
     print(input.resize_(10,3,224,224).shape)

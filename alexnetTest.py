@@ -33,8 +33,9 @@ def train(epoch):
             target = target.cuda()
 
         optimizer.zero_grad()
-        data = data.resize_(64, 3, 224, 224)
+        data = data.resize_(data.shape[0], 3, 224, 224)
         out = net(data)
+        torch.cat()
         if torch.cuda.is_available():
             out = out.cuda()
         loss = f.cross_entropy(out, target)
@@ -57,7 +58,7 @@ def test():
             if torch.cuda.is_available():
                 data = data.cuda()
                 target = target.cuda()
-            data = data.resize_(64, 3, 224, 224)
+            data = data.resize_(data.shape[0], 3, 224, 224)
             out = net(data)
             if torch.cuda.is_available():
                 out = out.cuda()
