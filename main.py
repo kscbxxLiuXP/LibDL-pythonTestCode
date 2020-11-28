@@ -51,7 +51,7 @@ def train(epoch):
         if batch_idx % 100 == 0:
             print(f"train epoch: {epoch} [{(batch_idx + 1) * len(data)}/{len(train_loader.dataset)}"
                   f" ({100 * (batch_idx + 1) / len(train_loader):.0f}%)] loss: {loss.item():.6f}")
-            break
+
 
 
 def test():
@@ -109,5 +109,5 @@ if __name__ == '__main__':
     optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.5)
 
     # init finish
-    test_BuildAndForward()
-    # test_trainAndtest()
+    #test_BuildAndForward()
+    test_trainAndtest()

@@ -43,7 +43,6 @@ def train(epoch):
         if batch_idx % 100 == 0:
             print(f"train epoch: {epoch} [{(batch_idx + 1) * len(data)}/{len(train_loader.dataset)}"
                   f" ({100 * (batch_idx + 1) / len(train_loader):.0f}%)] loss: {loss.item():.6f}")
-            break
 
 
 def test():
