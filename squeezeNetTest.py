@@ -1,10 +1,9 @@
-import time
-
+import  time
 from torch import nn
 from torch.nn.modules.padding import ZeroPad2d
 from torchvision.transforms import *
 from torchvision.datasets import MNIST
-from torchvision.models import shufflenet_v2_x1_0
+from torchvision.models import squeezenet1_0
 
 import torchvision
 
@@ -88,7 +87,7 @@ def test_BuildAndForward():
 
 if __name__ == '__main__':
     # init
-    net = shufflenet_v2_x1_0(num_classes=10)
+    net = squeezenet1_0(num_classes=10)
     if torch.cuda.is_available():
         print("cuda available")
         device = torch.device("cuda:0")

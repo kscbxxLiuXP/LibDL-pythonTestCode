@@ -1,24 +1,20 @@
 import time
+import torch
 
-from torch import nn
-from torch.nn.modules.padding import ZeroPad2d
 from torchvision.transforms import *
 from torchvision.datasets import MNIST
-from torchvision.models import shufflenet_v2_x1_0
-
-import torchvision
+from torchvision.models import vgg16
 
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 
 import torch.optim as optim
 import torch.nn.functional as f
-import torch
 
 
 def test_trainAndtest():
     ts = time.time()
-    for epoch in range(1):
+    for epoch in range(3):
         start = time.time()
         train(epoch)
         test()
@@ -37,7 +33,9 @@ def train(epoch):
             target = target.cuda()
 
         optimizer.zero_grad()
+        data = data.resize_(data.shape[0], 3, 224, 224)
         out = net(data)
+        torch.cat()
         if torch.cuda.is_available():
             out = out.cuda()
         loss = f.cross_entropy(out, target)
@@ -59,7 +57,7 @@ def test():
             if torch.cuda.is_available():
                 data = data.cuda()
                 target = target.cuda()
-
+            data = data.resize_(data.shape[0], 3, 224, 224)
             out = net(data)
             if torch.cuda.is_available():
                 out = out.cuda()
@@ -80,7 +78,7 @@ def test_BuildAndForward():
         print(layer)
 
     net.train()
-    input = torch.ones(10, 3, 28, 28)
+    input = torch.ones(10, 3, 224, 224)
     out = net(input)
     print(out.shape)
     print(out)
@@ -88,17 +86,15 @@ def test_BuildAndForward():
 
 if __name__ == '__main__':
     # init
-    net = shufflenet_v2_x1_0(num_classes=10)
+    net = vgg16(num_classes=10)
     if torch.cuda.is_available():
         print("cuda available")
         device = torch.device("cuda:0")
         net.to(device)
         torch.cuda.empty_cache()
-
     # "grow" method in java
     transform = Compose(
         [ToTensor(), Lambda(lambda t: torch.cat([t, t, t], 0))])  # think concat dim to be 1, confused...
-
     mnist_train = MNIST("MNIST", train=True, transform=transform, download=False)
     mnist_test = MNIST("MNIST", train=False, transform=transform, download=False)
     train_loader = DataLoader(mnist_train, batch_size=64, sampler=SequentialSampler(mnist_train))
@@ -106,5 +102,5 @@ if __name__ == '__main__':
     optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.5)
 
     # init finish
-    #test_BuildAndForward()
-    test_trainAndtest()
+    test_BuildAndForward()
+    # test_trainAndtest()
